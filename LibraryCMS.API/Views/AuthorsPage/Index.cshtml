@@ -1,0 +1,80 @@
+﻿@{
+    ViewData["Title"] = "Authors";
+}
+
+<h2 class="mb-3">Authors</h2>
+
+<div class="input-group mb-3">
+    <input type="text" id="authorName" class="form-control" placeholder="New author name" required />
+    <button class="btn btn-primary" onclick="addAuthor()">Add Author</button>
+</div>
+
+<table class="table table-bordered table-striped" id="authorsTable">
+    <thead class="table-dark">
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th style="width: 100px;">Actions</th>
+        </tr>
+    </thead>
+    <tbody></tbody>
+</table>
+
+<script>
+    function loadAuthors() {
+        const xhr = new XMLHttpRequest();
+        xhr.open("GET", "https://localhost:7280/api/authors", true);
+        xhr.onload = function () {
+            if (xhr.status === 200) {
+                const authors = JSON.parse(xhr.responseText);
+                const tbody = document.querySelector("#authorsTable tbody");
+                tbody.innerHTML = "";
+
+                authors.forEach(author => {
+                    const row = `<tr>
+                        <td>${author.id}</td>
+                        <td>${author.name}</td>
+                        <td><button class="btn btn-sm btn-danger" onclick="deleteAuthor(${author.id}, this)">Delete</button></td>
+                    </tr>`;
+                    tbody.insertAdjacentHTML('beforeend', row);
+                });
+            }
+        };
+        xhr.send();
+    }
+
+    function addAuthor() {
+        const name = document.getElementById("authorName").value.trim();
+        if (!name) return alert("Please enter a name.");
+
+        const xhr = new XMLHttpRequest();
+        xhr.open("POST", "https://localhost:7280/api/authors", true);
+        xhr.setRequestHeader("Content-Type", "application/json");
+        xhr.onload = function () {
+            if (xhr.status === 200 || xhr.status === 201) {
+                document.getElementById("authorName").value = "";
+                loadAuthors();
+            } else {
+                alert("Error adding author.");
+            }
+        };
+        xhr.send(JSON.stringify({ name }));
+    }
+
+    function deleteAuthor(id, btn) {
+        if (!confirm("Delete this author?")) return;
+
+        const xhr = new XMLHttpRequest();
+        xhr.open("DELETE", `https://localhost:7280/api/authors/${id}`, true);
+        xhr.onload = function () {
+            if (xhr.status === 200 || xhr.status === 204) {
+                btn.closest("tr").remove();
+            } else {
+                alert("Error deleting author.");
+            }
+        };
+        xhr.send();
+    }
+
+    loadAuthors();
+</script>

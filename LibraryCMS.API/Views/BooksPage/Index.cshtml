@@ -1,0 +1,104 @@
+﻿@model IEnumerable<LibraryCMS.API.DTOs.BookDTO>
+
+@{
+    ViewData["Title"] = "Books";
+}
+
+<h2 class="mb-3">Books</h2>
+
+<div class="mb-4">
+    <input type="text" id="bookTitle" class="form-control mb-2" placeholder="Enter book title" />
+    <button id="addBookBtn" class="btn btn-success">Add Book</button>
+</div>
+
+
+
+
+
+@if (!Model.Any())
+{
+    <p>No books found.</p>
+}
+else
+{
+    <table class="table table-bordered table-striped">
+        <thead class="table-dark">
+            <tr>
+                <th>ID</th>
+                <th>Title</th>
+                <th style="width: 100px;">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var book in Model)
+            {
+                <tr>
+                    <td>@book.Id</td>
+                    <td>@book.Title</td>
+                    <td>
+                        <button class="btn btn-sm btn-danger delete-book-btn" data-id="@book.Id">Delete</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+<script>
+    document.getElementById("addBookBtn").addEventListener("click", function () {
+        const title = document.getElementById("bookTitle").value.trim();
+        if (!title) {
+            alert("Please enter a book title.");
+            return;
+        }
+
+        const xhr = new XMLHttpRequest();
+        xhr.open("POST", "https://localhost:7280/api/books", true);
+        xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+
+        xhr.onload = function () {
+            if (xhr.status === 200 || xhr.status === 201) {
+                alert("Book added successfully!");
+                location.reload(); // refresh the page to show new book
+            } else {
+                alert("Failed to add book. Status: " + xhr.status);
+                console.error(xhr.responseText);
+            }
+        };
+
+        xhr.onerror = function () {
+            alert("Error connecting to the API.");
+        };
+
+        xhr.send(JSON.stringify({ title: title }));
+    });
+
+    document.querySelectorAll(".delete-book-btn").forEach(btn => {
+        btn.addEventListener("click", function () {
+            const bookId = this.getAttribute("data-id");
+
+            if (!confirm("Are you sure you want to delete this book?")) return;
+
+            const xhr = new XMLHttpRequest();
+            xhr.open("DELETE", `https://localhost:7280/api/books/${bookId}`, true);
+
+            xhr.onload = function () {
+                if (xhr.status === 200 || xhr.status === 204) {
+                    alert("Book deleted.");
+                    location.reload(); // or remove the row dynamically
+                } else {
+                    alert("Failed to delete. Status: " + xhr.status);
+                    console.error(xhr.responseText);
+                }
+            };
+
+            xhr.onerror = function () {
+                alert("Error while deleting the book.");
+            };
+
+            xhr.send();
+        });
+    });
+
+
+</script>

@@ -1,0 +1,13 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\LibraryCMS.API",
+    "\\LibraryCMS.API\\Controllers",
+    "\\LibraryCMS.API\\Models",
+    "\\LibraryCMS.API\\Views",
+    "\\LibraryCMS.API\\Views\\BooksPage",
+    "\\LibraryCMS.API\\Views\\CategoriesPage"
+  ],
+  "SelectedNode": "\\LibraryCMS.API\\Views\\BooksPage\\Index.cshtml",
+  "PreviewInSolutionExplorer": false
+}

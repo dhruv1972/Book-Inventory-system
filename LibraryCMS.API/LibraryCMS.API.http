@@ -1,0 +1,6 @@
+@LibraryCMS.API_HostAddress = http://localhost:5155
+
+GET {{LibraryCMS.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

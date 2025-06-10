@@ -1,0 +1,80 @@
+﻿@{
+    ViewData["Title"] = "Categories";
+}
+
+<h2 class="mb-3">Categories</h2>
+
+<div class="input-group mb-3">
+    <input type="text" id="categoryName" class="form-control" placeholder="New category name" required />
+    <button class="btn btn-primary" onclick="addCategory()">Add Category</button>
+</div>
+
+<table class="table table-bordered table-striped" id="categoriesTable">
+    <thead class="table-dark">
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th style="width: 100px;">Actions</th>
+        </tr>
+    </thead>
+    <tbody></tbody>
+</table>
+
+<script>
+    function loadCategories() {
+        const xhr = new XMLHttpRequest();
+        xhr.open("GET", "https://localhost:7280/api/categories", true);
+        xhr.onload = function () {
+            if (xhr.status === 200) {
+                const categories = JSON.parse(xhr.responseText);
+                const tbody = document.querySelector("#categoriesTable tbody");
+                tbody.innerHTML = "";
+
+                categories.forEach(category => {
+                    const row = `<tr>
+                        <td>${category.id}</td>
+                        <td>${category.name}</td>
+                        <td><button class="btn btn-sm btn-danger" onclick="deleteCategory(${category.id}, this)">Delete</button></td>
+                    </tr>`;
+                    tbody.insertAdjacentHTML('beforeend', row);
+                });
+            }
+        };
+        xhr.send();
+    }
+
+    function addCategory() {
+        const name = document.getElementById("categoryName").value.trim();
+        if (!name) return alert("Please enter a name.");
+
+        const xhr = new XMLHttpRequest();
+        xhr.open("POST", "https://localhost:7280/api/categories", true);
+        xhr.setRequestHeader("Content-Type", "application/json");
+        xhr.onload = function () {
+            if (xhr.status === 200 || xhr.status === 201) {
+                document.getElementById("categoryName").value = "";
+                loadCategories();
+            } else {
+                alert("Error adding category.");
+            }
+        };
+        xhr.send(JSON.stringify({ name }));
+    }
+
+    function deleteCategory(id, btn) {
+        if (!confirm("Delete this category?")) return;
+
+        const xhr = new XMLHttpRequest();
+        xhr.open("DELETE", `https://localhost:7280/api/categories/${id}`, true);
+        xhr.onload = function () {
+            if (xhr.status === 200 || xhr.status === 204) {
+                btn.closest("tr").remove();
+            } else {
+                alert("Error deleting category.");
+            }
+        };
+        xhr.send();
+    }
+
+    loadCategories();
+</script>
